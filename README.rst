@@ -29,10 +29,58 @@ or by installing with conda (OSX and linux64 only) with my binstar channel:
 
  conda install -c https://conda.binstar.org/srwalker101 yapf
 
+TL;DR
+=====================
+To format only your changes, use ``vim-yapf`` with ``vim-gitgutter``. For example, add following to your ``vimrc``:
+
+.. code:: vim
+
+   call plug#begin('~/.vim/plugged')
+   " yapf formater
+   Plug 'dy93/vim-yapf', { 'for': ['python'] }
+
+   " gitgutter
+   Plug 'airblade/vim-gitgutter'
+   call plug#end()
+
+   function! MyAutoFormat()
+     let g:gitgutter_async = 0
+     execute "GitGutterAll"
+     let hunks = GitGutterGetHunks()
+     if len(hunks) > 0
+       let lines = []
+       for hunk in GitGutterGetHunks()
+         if hunk[2] <= hunk[2]+hunk[3]-1
+           call add(lines, '-l '.hunk[2].'-'.(hunk[2]+hunk[3]-1))
+         else
+           call add(lines, '-l '.(hunk[2]+hunk[3]-1).'-'.hunk[2])
+         endif
+       endfor
+       echom "Yapf --style ~/.style.yapf ".join(lines, ' ')
+       let save = winsaveview()
+       execute "Yapf --style ~/.style.yapf ".join(lines, ' ')
+       call winrestview(save)
+     else
+       execute "Yapf --style ~/.style.yapf"
+     endif
+     let g:gitgutter_async = 1
+   endfunction
+
+   " formater
+   autocmd BufWritePre *.py :call MyAutoFormat()
+
+and generate your yapf config:
+
+.. code:: bash
+
+   $ yapf --style-help > ~/.style.yapf
+
+
+
 Installation
 =====================
 
-Either use a plugin manager and add ``Plug[in] 'mindriot101/vim-yapf'`` to your ``vimrc``, or use pathogen.
+Either use a plugin manager and add ``Plug[in] 'dy93/vim-yapf'`` to your ``vimrc``, or use pathogen.
 
 Bindings
 =====================
