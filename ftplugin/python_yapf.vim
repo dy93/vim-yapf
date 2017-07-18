@@ -50,8 +50,10 @@ if !exists("Yapf(...)")
             execute 'normal! ' . current_line . 'G'
             " restore cursor position
             call setpos('.', current_cursor)
-            silent new
-            silent put a
+            let o = @a
+            for line in split(o, '\n')
+                echoerr line
+            endfor
         end
     endfunction
 
